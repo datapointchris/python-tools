@@ -1,7 +1,6 @@
 import itertools
 import json
 import pathlib
-from pprint import pprint
 
 TEST_STRUCTURE = {
     "separator": ".",
@@ -122,11 +121,11 @@ class Structure:
             for k, v in combinations.items()
         }
 
-    def _build_tree_structure(self, section_sets, index=0):
+    def _build_tree_dicts(self, section_sets, index=0):
         key_dict = dict.fromkeys(section_sets[index], {})
         if index < len(section_sets) - 1:
             index += 1
-            next_dict = self._build_tree_structure(section_sets, index)
+            next_dict = self._build_tree_dicts(section_sets, index)
             for k in key_dict:
                 key_dict[k] = next_dict
             return key_dict
@@ -137,10 +136,9 @@ class Structure:
         for name, group in string_groups.items():
             separated = [file.split(self.separator) for file in group]
             section_sets = list(set(z) for z in zip(*separated))
-            tree_groups[name] = self._build_tree_structure(section_sets)
+            tree_groups[name] = self._build_tree_dicts(section_sets)
         return tree_groups
 
-    # TODO: same as `print_string_groups` that will print all or accept a group to print
     def _create_tree_structure(self, tree_group: dict, prefix: str = ''):
         # prefix components
         SPACE = '    '
@@ -150,13 +148,10 @@ class Structure:
         LAST = '└── '
         # each section of tree group gets pointer ├── with a final └── :
         pointers = [TEE] * (len(tree_group) - 1) + [LAST]
-        # print(f'{pointers=}')
         for pointer, section in zip(pointers, tree_group):
             yield prefix + pointer + section
-            # print(f'{tree_group=}')
             if isinstance(tree_group.get(section), dict):  # extend the prefix and recurse:
                 extension = BRANCH if pointer == TEE else SPACE
-                # print(f'{extension=}')
                 # i.e. SPACE because last, └── , above so no more |
                 yield from self._create_tree_structure(
                     tree_group[section], prefix=prefix + extension
