@@ -1,19 +1,34 @@
+import sys
 import itertools
 from pathlib import Path
 
 
-# prefix components:
-SPACE = '    '
-BRANCH = '│   '
-# pointers:
-TEE = '├── '
-LAST = '└── '
+def human_readable_size(object: object, decimal_places: int = 2) -> tuple[float, str]:
+    """Get human readable size of any python object
+
+    Uses `sys.getsizeof()` to get bytes
+    Units are SI: 1000, not 1024
+
+    Returns:
+        tuple(size:float, units:str)
+    """
+    size = sys.getsizeof(object)
+    for unit in ['B', 'kB', 'MB', 'GB', 'TB', 'PB']:
+        if size < 1000.0 or unit == 'PB':
+            break
+        size /= 1000.0
+    return (f'{size:.{decimal_places}f}', unit)
+
+
+def glob_multiple_patterns(path: Path, patterns: str | list[str]):
+    patterns = [patterns] if isinstance(patterns, str) else patterns
+    return list(itertools.chain.from_iterable(Path(path).glob(p) for p in patterns))
 
 
 def tree(
     dir_path: Path,
     prefix: str = '',
-    include_glob: str | list[str] = '*',
+    include_glob: str | list[str] = '**/*',
     exclude_glob: str | list[str] = None,
 ):
     """Create tree structure for path
@@ -28,9 +43,12 @@ def tree(
         _type_: _description_
     """
 
-    def glob_multiple_patterns(path: Path, patterns: str | list[str]):
-        patterns = [patterns] if isinstance(patterns, str) else patterns
-        return list(itertools.chain.from_iterable(Path(path).glob(p) for p in patterns))
+    # prefix components:
+    SPACE = '    '
+    BRANCH = '│   '
+    # pointers:
+    TEE = '├── '
+    LAST = '└── '
 
     contents = glob_multiple_patterns(dir_path, include_glob)
     if exclude_glob:
