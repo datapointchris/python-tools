@@ -1,6 +1,7 @@
 # v0.2.0 --> Version releases and packages
 - [ ] Use branching
 - [ ] What to update?
+- [ ] `create-release.sh`
 
 
 # v0.3.0 --> Tree is broken
