@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "tools"
+name = "python_tools"
 version = "0.1.0"
-description = "Random (mostly Python) coding tools and functions"
+description = "Python coding tools and functions"
 authors = ["Chris Birch <datapointchris@gmail.com>"]
 license = "MIT"
 readme = "README.md"
